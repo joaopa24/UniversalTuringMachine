@@ -1,5 +1,5 @@
 class TuringMachine:
-    def __init__(self, tape="", blank_symbol=" ", initial_state="", final_states=None, transition_function=None):
+    def __init__(self, tape="", blank_symbol="B", initial_state="", final_states=None, transition_function=None):
         self.tape = list(tape)
         self.blank_symbol = blank_symbol
         self.head_position = 0
