@@ -66,7 +66,7 @@ def decode_multiple_transitions(encoded_transitions):
     return decoded_transitions
 
 # Exemplo de uso
-encoded_transitions = "10111011011101100110101010100110110111011011001110110101101"
+encoded_transitions = "1101010101"
 
 print("Sequência codificada:", encoded_transitions)
 
