@@ -1,4 +1,3 @@
-#quase
 class MaquinaDeTuring:
     def __init__(self, estado_inicial, estados_finais, palavra):
         self.fita1 = []
@@ -97,7 +96,7 @@ class MaquinaDeTuring:
                 self.estado_atual = f"q{len(novo_estado_codificado) - 1}"
 
                 # Exibe a transição válida
-                self.mostrar_estado(i)
+                self.mostrar_estado(i, valida=True)
                 return True
 
             i += 10  # Pula para a próxima transição
@@ -112,7 +111,7 @@ class MaquinaDeTuring:
         while i < len(self.fita1):
             if transicao_index is not None and i == transicao_index:
                 fita1_com_transicao += '['
-                while i < len(self.fita1) and i < transicao_index + 10:
+                while i < len(self.fita1) and i < transicao_index + 9:
                     fita1_com_transicao += self.fita1[i]
                     i += 1
                 fita1_com_transicao += ']'
@@ -133,10 +132,14 @@ class MaquinaDeTuring:
         print("Fita 2:", fita2_com_transicao)
         print("Fita 3:", fita3_com_transicao)
         if transicao_index is not None:
-            print("Transição atual:", ''.join(self.fita1[transicao_index:transicao_index + 6]))
+            transicao_mostrada = ''.join(self.fita1[transicao_index:transicao_index + 9])
+            print("Transição atual:", transicao_mostrada)
             print("Transição", "válida." if valida else "inválida.")
 
     def verificar_aceitacao(self):
+        # Destaca a primeira transição
+        self.mostrar_estado(1, valida=False)
+
         while True:
             self.mostrar_estado()
             if self.estado_atual in self.estados_finais:
@@ -158,7 +161,7 @@ class MaquinaDeTuring:
             if (self.fita1[i] == estado_codificado and 
                 self.fita1[i+2] == simbolo_codificado):
                 # Encontrou uma transição válida
-                self.mostrar_estado()
+                self.mostrar_estado(i)
                 print("Transição inválida. Tentando a próxima...")
                 encontrou_transicao_valida = True
             i += 10  # Pula para a próxima transição

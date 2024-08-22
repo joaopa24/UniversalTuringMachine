@@ -1,0 +1,11 @@
+{
+    "transicoes": {
+        "q0_0": ["q0", "0", "R"],
+        "q0_B": ["q1", "B", "R"],
+        "q1_1": ["q2", "1", "R"],
+        "q2_1": ["q2", "1", "R"]
+    },
+    "estado_inicial": "q0",
+    "estados_finais": ["q2"],
+    "palavra": "11011"
+}

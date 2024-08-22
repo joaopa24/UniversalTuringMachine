@@ -112,7 +112,7 @@ class MaquinaDeTuring:
         while i < len(self.fita1):
             if transicao_index is not None and i == transicao_index:
                 fita1_com_transicao += '['
-                while i < len(self.fita1) and i < transicao_index + 10:
+                while i < len(self.fita1) and i < transicao_index + 9:
                     fita1_com_transicao += self.fita1[i]
                     i += 1
                 fita1_com_transicao += ']'
