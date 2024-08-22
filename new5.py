@@ -1,5 +1,3 @@
-#Leitura perfeita
-
 class MaquinaDeTuring:
     def __init__(self):
         # Inicializa as fitas com listas vazias
@@ -16,11 +14,22 @@ class MaquinaDeTuring:
         self.transicoes = {
             ("q0", "1"): ("q0", "1", "R"),
             ("q0", "B"): ("q1", "1", "R"),
-            ("q1", "1"): ("q1", "1", "R")
+            ("q1", "1"): ("q1", "1", "R"),
+            ("q4", "0"): ("q2", "B", "L")
         }
 
         # Processa as transições e adiciona na fita 1
         self.processar_transicoes()
+
+    def codificar_estado(self, estado):
+        """Codifica um estado no formato dinâmico baseado em 'qX'"""
+        if estado.startswith('q'):
+            try:
+                numero_estado = int(estado[1:])  # Remove o 'q' inicial e converte para inteiro
+                return '1' * (numero_estado + 1)  # Codifica como '1' * (numero_estado + 1)
+            except ValueError:
+                return '0'  # Caso não consiga converter para inteiro, retorna '0'
+        return '0'  # Default caso o estado não seja reconhecido
 
     def processar_transicoes(self):
         # Adiciona '000' no início como um único componente
@@ -31,12 +40,7 @@ class MaquinaDeTuring:
 
         for i, ((estado_atual, simbolo_lido), (estado_destino, simbolo_substituto, direcao)) in enumerate(transicoes):
             # Codifica o estado atual
-            if estado_atual == "q0":
-                self.fita1.append('1')
-            elif estado_atual == "q1":
-                self.fita1.append('11')
-            elif estado_atual == "q2":
-                self.fita1.append('111')
+            self.fita1.append(self.codificar_estado(estado_atual))
             # Adiciona separador
             self.fita1.append('0')
 
@@ -51,12 +55,7 @@ class MaquinaDeTuring:
             self.fita1.append('0')
 
             # Codifica o estado destino
-            if estado_destino == "q0":
-                self.fita1.append('1')
-            elif estado_destino == "q1":
-                self.fita1.append('11')
-            elif estado_destino == "q2":
-                self.fita1.append('111')
+            self.fita1.append(self.codificar_estado(estado_destino))
             # Adiciona separador
             self.fita1.append('0')
 
