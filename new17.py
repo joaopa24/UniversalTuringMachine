@@ -73,30 +73,25 @@ class MaquinaDeTuring:
 
         i = 1  # Começa após o '000' inicial
         while i < len(self.fita1) - 1:
-            transicao_atual = self.fita1[i:i+10]
-            if (self.fita1[i] == estado_codificado and 
-                self.fita1[i+2] == simbolo_codificado):
-                novo_estado_codificado = self.fita1[i+4]
-                novo_simbolo_codificado = self.fita1[i+6]
-                direcao = self.fita1[i+8]
+            estado_atual_codificado = self.fita1[i]
+            simbolo_lido_codificado = self.fita1[i+2]
+            novo_estado_codificado = self.fita1[i+4]
+            novo_simbolo_codificado = self.fita1[i+6]
+            direcao = self.fita1[i+8]
 
-                self.fita2 = [novo_estado_codificado]
+            if (estado_atual_codificado == estado_codificado and 
+                simbolo_lido_codificado == simbolo_codificado):
+                novo_simbolo = '0' if novo_simbolo_codificado == '1' else \
+                               '1' if novo_simbolo_codificado == '11' else \
+                               'B' if novo_simbolo_codificado == '111' else simbolo_atual
 
-                if novo_simbolo_codificado == '1':
-                    self.fita3[self.cabeca_fita3] = '0'
-                elif novo_simbolo_codificado == '11':
-                    self.fita3[self.cabeca_fita3] = '1'
-                elif novo_simbolo_codificado == '111':
-                    self.fita3[self.cabeca_fita3] = 'B'
-
-                if direcao == '1':
-                    self.cabeca_fita3 = max(0, self.cabeca_fita3 - 1)
-                elif direcao == '11':
-                    self.cabeca_fita3 += 1
-
+                self.fita3[self.cabeca_fita3] = novo_simbolo
+                self.cabeca_fita3 += 1 if direcao == '11' else -1 if direcao == '1' else 0
                 self.estado_atual = f"q{len(novo_estado_codificado) - 1}"
 
-                # Exibe a transição válida
+                # Atualiza a fita2 com o novo estado codificado
+                self.fita2 = [novo_estado_codificado]
+
                 self.mostrar_estado(i, valida=True)
                 return True
 
@@ -142,12 +137,9 @@ class MaquinaDeTuring:
         self.mostrar_estado(1, valida=False)
 
         while True:
-            if self.estado_atual in self.estados_finais:
-                print("Palavra aceita.")
-                return True
             if not self.executar_passo():
                 if not self.tentar_proxima_transicao():
-                    print("Palavra não aceita.")
+                    print("Não há mais transições disponíveis.")
                     return False
 
     def tentar_proxima_transicao(self):

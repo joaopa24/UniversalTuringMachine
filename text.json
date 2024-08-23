@@ -1,11 +1,12 @@
 {
-    "transicoes": {
-        "q0_0": ["q0", "0", "R"],
-        "q0_B": ["q1", "B", "R"],
-        "q1_1": ["q2", "1", "R"],
-        "q2_1": ["q2", "1", "R"]
-    },
     "estado_inicial": "q0",
-    "estados_finais": ["q2"],
-    "palavra": "11011"
-}
+    "estados_finais": ["q1", "q0"],
+    "palavra": "11B11",
+    "transicoes": [
+      {"estado_atual": "q0", "simbolo_lido": "B", "estado_destino": "q1", "simbolo_substituto": "B", "direcao": "R"},
+      {"estado_atual": "q0", "simbolo_lido": "0", "estado_destino": "q0", "simbolo_substituto": "0", "direcao": "L"},
+      {"estado_atual": "q1", "simbolo_lido": "1", "estado_destino": "q2", "simbolo_substituto": "1", "direcao": "R"},
+      {"estado_atual": "q2", "simbolo_lido": "1", "estado_destino": "q0", "simbolo_substituto": "1", "direcao": "L"}
+    ]
+  }
+  

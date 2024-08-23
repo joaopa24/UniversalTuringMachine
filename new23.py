@@ -1,22 +1,26 @@
+import json
+
 class MaquinaDeTuring:
-    def __init__(self, estado_inicial, estados_finais, palavra):
-        self.fita1 = []
+    def __init__(self, arquivo_config):
+        with open(arquivo_config, 'r') as f:
+            config = json.load(f)
+
+        self.estado_inicial = config['estado_inicial']
+        self.estados_finais = config['estados_finais']
+        self.palavra = config['palavra']
+        self.transicoes = {
+            (t['estado_atual'], t['simbolo_lido']): (t['estado_destino'], t['simbolo_substituto'], t['direcao'])
+            for t in config['transicoes']
+        }
+
+        self.fita1 = ['000']  # Inclui o delimitador inicial
         self.fita2 = []
-        # Inicializa a fita3 com 'B' no início seguido pela palavra
-        self.fita3 = ['B'] + list(palavra)
+        self.fita3 = ['B'] + list(self.palavra)
         self.cabeca_fita1 = 0
         self.cabeca_fita2 = 0
-        self.cabeca_fita3 = 0  # A cabeça começa na posição inicial 0
-        self.transicoes = {
-            ("q0", "B"): ("q1", "B", "R"),
-            ("q0", "0"): ("q0", "0", "L"),
-            ("q1", "1"): ("q2", "1", "R"),
-            ("q2", "1"): ("q0", "1", "L"),
-        }
-        self.estado_inicial = estado_inicial
-        self.estados_finais = estados_finais
-        self.estado_atual = estado_inicial
-        self.fita2.append(self.codificar_estado(estado_inicial))
+        self.cabeca_fita3 = 0
+        self.estado_atual = self.estado_inicial
+        self.fita2.append(self.codificar_estado(self.estado_inicial))
         self.processar_transicoes()
 
     def codificar_estado(self, estado):
@@ -29,7 +33,6 @@ class MaquinaDeTuring:
         return '0'
 
     def processar_transicoes(self):
-        self.fita1.append('000')
         transicoes = list(self.transicoes.items())
         num_transicoes = len(transicoes)
 
@@ -64,7 +67,7 @@ class MaquinaDeTuring:
             if i < num_transicoes - 1:
                 self.fita1.append('00')
 
-        self.fita1.append('000')
+        self.fita1.append('000')  # Inclui o delimitador final
 
     def executar_passo(self):
         simbolo_atual = self.fita3[self.cabeca_fita3] if self.cabeca_fita3 < len(self.fita3) else 'B'
@@ -73,37 +76,33 @@ class MaquinaDeTuring:
 
         i = 1  # Começa após o '000' inicial
         while i < len(self.fita1) - 1:
-            transicao_atual = self.fita1[i:i+10]
-            if (self.fita1[i] == estado_codificado and 
-                self.fita1[i+2] == simbolo_codificado):
-                novo_estado_codificado = self.fita1[i+4]
-                novo_simbolo_codificado = self.fita1[i+6]
-                direcao = self.fita1[i+8]
+            estado_atual_codificado = self.fita1[i]
+            simbolo_lido_codificado = self.fita1[i+2]
+            novo_estado_codificado = self.fita1[i+4]
+            novo_simbolo_codificado = self.fita1[i+6]
+            direcao = self.fita1[i+8]
 
-                self.fita2 = [novo_estado_codificado]
+            if (estado_atual_codificado == estado_codificado and 
+                simbolo_lido_codificado == simbolo_codificado):
+                novo_simbolo = '0' if novo_simbolo_codificado == '1' else \
+                               '1' if novo_simbolo_codificado == '11' else \
+                               'B' if novo_simbolo_codificado == '111' else simbolo_atual
 
-                if novo_simbolo_codificado == '1':
-                    self.fita3[self.cabeca_fita3] = '0'
-                elif novo_simbolo_codificado == '11':
-                    self.fita3[self.cabeca_fita3] = '1'
-                elif novo_simbolo_codificado == '111':
-                    self.fita3[self.cabeca_fita3] = 'B'
-
-                if direcao == '1':
-                    self.cabeca_fita3 = max(0, self.cabeca_fita3 - 1)
-                elif direcao == '11':
-                    self.cabeca_fita3 += 1
-
+                self.fita3[self.cabeca_fita3] = novo_simbolo
+                self.cabeca_fita3 += 1 if direcao == '11' else -1 if direcao == '1' else 0
                 self.estado_atual = f"q{len(novo_estado_codificado) - 1}"
 
-                # Exibe a transição válida
-                self.mostrar_estado(i, valida=True)
+                # Atualiza a fita2 com o novo estado codificado
+                self.fita2 = [novo_estado_codificado]
+
+                # Mostrar estado e destacar transição
+                self.mostrar_estado(transicao_index=i, valida=True)
                 return True
 
             i += 10  # Pula para a próxima transição
 
         # Se não encontrou uma transição válida
-        self.mostrar_estado(i, valida=False)
+        self.mostrar_estado(valida=False)
         return False
 
     def mostrar_estado(self, transicao_index=None, valida=False):
@@ -112,7 +111,7 @@ class MaquinaDeTuring:
         while i < len(self.fita1):
             if transicao_index is not None and i == transicao_index:
                 fita1_com_transicao += '['
-                while i < len(self.fita1) and i < transicao_index + 9:
+                while i < len(self.fita1) and i < transicao_index + 9 and self.fita1[i] != '00':
                     fita1_com_transicao += self.fita1[i]
                     i += 1
                 fita1_com_transicao += ']'
@@ -129,26 +128,25 @@ class MaquinaDeTuring:
             for idx, comp in enumerate(self.fita3)
         )
 
-        print("Fita 1:", fita1_com_transicao)
-        print("Fita 2:", fita2_com_transicao)
-        print("Fita 3:", fita3_com_transicao)
+        print('Fita 1:', fita1_com_transicao)
+        print('Fita 2:', fita2_com_transicao)
+        print('Fita 3:', fita3_com_transicao)
+
         if transicao_index is not None:
-            transicao_mostrada = ''.join(self.fita1[transicao_index:transicao_index + 9])
-            print("Transição atual:", transicao_mostrada)
+            transicao = ''.join(self.fita1[transicao_index:transicao_index + 9])
+            print("Transição atual:", transicao)
             print("Transição", "válida." if valida else "inválida.")
 
     def verificar_aceitacao(self):
-        # Destaca a primeira transição
-        self.mostrar_estado(1, valida=False)
+        # Mostrar estado inicial apenas uma vez
+        self.mostrar_estado()
 
         while True:
-            if self.estado_atual in self.estados_finais:
-                print("Palavra aceita.")
-                return True
             if not self.executar_passo():
                 if not self.tentar_proxima_transicao():
-                    print("Palavra não aceita.")
-                    return False
+                    print("Não há mais transições disponíveis.")
+                    self.verificar_estado_final()
+                    return
 
     def tentar_proxima_transicao(self):
         estado_codificado = self.codificar_estado(self.estado_atual)
@@ -160,18 +158,21 @@ class MaquinaDeTuring:
         while i < len(self.fita1) - 1:
             if (self.fita1[i] == estado_codificado and 
                 self.fita1[i+2] == simbolo_codificado):
-                # Encontrou uma transição válida
-                self.mostrar_estado(i)
+                # Destaca a transição atual
+                self.mostrar_estado(transicao_index=i)
                 print("Transição inválida. Tentando a próxima...")
                 encontrou_transicao_valida = True
             i += 10  # Pula para a próxima transição
 
         return encontrou_transicao_valida
 
-# Exemplo de uso
-estado_inicial = "q0"
-estados_finais = ["q2"]
-palavra = "11B11"
+    def verificar_estado_final(self):
+        estado_atual_codificado = self.fita2[0]
+        if estado_atual_codificado in [self.codificar_estado(estado) for estado in self.estados_finais]:
+            print("Palavra aceita.")
+        else:
+            print("Palavra rejeitada.")
 
-maquina = MaquinaDeTuring(estado_inicial, estados_finais, palavra)
+# Exemplo de uso
+maquina = MaquinaDeTuring('text.json')
 maquina.verificar_aceitacao()
